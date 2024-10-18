@@ -13,6 +13,8 @@ import CreateStory from './screens/CreateStory';
 import NotificationScreen from './screens/NotificationScreen';
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import EditProfile from './screens/EditProfile';
+import Settings from './screens/Settings';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -56,6 +58,8 @@ export default function App() {
           <Stack.Screen name="CreatePost" component={CreatePost}/>
           <Stack.Screen name="CreateStory" component={CreateStory}/>
           <Stack.Screen options={{headerShown: false}} name="Story" component={StoryScreen}/>
+          <Stack.Screen options={{headerShown: false}} name="Edit" component={EditProfile}/>
+          <Stack.Screen options={{headerShown: false}} name="Settings" component={Settings}/>
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

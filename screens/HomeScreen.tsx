@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View, ScrollView, Modal, Button, TextInput } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-import { setCurrentStory } from '../redux/store/storySlice';
-import { setCurrentPost, updatePostComments, updatePostLikes } from '../redux/store/postSlice';
+import { setCurrentStory, setStories } from '../redux/store/storySlice';
+import { setCurrentPost, updatePostComments, updatePostLikes, setPosts } from '../redux/store/postSlice';
 import { setUser } from '../redux/store/userSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -29,7 +29,8 @@ export default function HomeScreen({navigation}:{navigation:any}) {
     const [commentModal, setCommentModal] = useState(false);
     const [newComment, setNewComment] = useState('');
     const currentPost = useSelector((state: RootState) => state.post.currentPost);
-    
+    const posts = useSelector((state: RootState) => state.post.posts);
+    const stories = useSelector((state: RootState) => state.story.stories);
 
     // Giriş yapan kullanıcıyı al
     useEffect(() => {
@@ -43,13 +44,17 @@ export default function HomeScreen({navigation}:{navigation:any}) {
                         username: loggedInUserData.username, 
                         profileImage: loggedInUserData.profileImage,
                         followers: loggedInUserData.followers,
-                        following: loggedInUserData.following,                        
+                        following: loggedInUserData.following,
+                        followingUsers: loggedInUserData.followingUsers || [],
                     }));
-                    setUserPosts(dummyPosts);
                 }
             }
+            // Dummy story'leri Redux'a yükle
+            dispatch(setStories(dummyStories));
+            // Redux store'a dummy post'ları yükle
+            dispatch(setPosts(dummyPosts));
         };
-
+    
         getLoggedInUser();
     }, [dispatch]);
 
@@ -70,29 +75,23 @@ export default function HomeScreen({navigation}:{navigation:any}) {
     }
 
     const handleLike = (postId: string) => {
-        const updatedPosts = userPosts.map(post => {
-            if (post.id === postId) {
-                const isLiked = post.liked ?? false;
-                return {
-                    ...post,
-                    liked: !isLiked,
-                    likes: isLiked ? post.likes - 1 : post.likes + 1,
-                };
-            }
-            return post;
-        });
+        const postToUpdate = posts.find((post) => post.id === postId);
+    
+    if (postToUpdate) {
+        const isLiked = postToUpdate.liked ?? false;
+        const updatedPost = {
+            ...postToUpdate,
+            liked: !isLiked,
+            likes: isLiked ? postToUpdate.likes - 1 : postToUpdate.likes + 1,
+        };
 
-        setUserPosts(updatedPosts);
-
-        // Redux store'da beğenme sayısını güncelle
-        const updatedPost = updatedPosts.find(post => post.id === postId);
-        if (updatedPost) {
-            dispatch(updatePostLikes({ 
-                postId: updatedPost.id, 
-                likes: updatedPost.likes, 
-                liked: updatedPost.liked 
-            }));
-        }
+        // Redux store'da post'u güncelle
+        dispatch(updatePostLikes({
+            postId: updatedPost.id,
+            likes: updatedPost.likes,
+            liked: updatedPost.liked,
+        }));
+    }
     };
 
     const renderStory = ({ item }:{item:any}) => (
@@ -156,7 +155,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
             {/* Hikayeler */}
             <View style={styles.storiesContainer}>
                 <FlatList
-                    data={dummyStories}
+                    data={stories}
                     renderItem={renderStory}
                     keyExtractor={item => item.id}
                     horizontal
@@ -165,7 +164,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
             </View>
 
             <View style={styles.create}>
-                {user.profileImage ? <Image source={user.profileImage} style={styles.profileImage}/> : null}
+                {/* {user.profileImage ? <Image source={user.profileImage} style={styles.profileImage}/> : null} */}
                 <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
                     <Text style={styles.buttonText}>Whats on your mind?</Text>
                 </TouchableOpacity>
@@ -173,9 +172,9 @@ export default function HomeScreen({navigation}:{navigation:any}) {
 
             {/* Gönderiler */}
             <View style={styles.postsContainer}>
-                {userPosts.length > 0 ? (
+                {posts.length > 0 ? (
                     <FlatList
-                        data={userPosts}
+                        data={posts}
                         renderItem={renderPost}
                         keyExtractor={item => item.id}
                         scrollEnabled={false} // ScrollView ile sarıldığı için false yapıyoruz

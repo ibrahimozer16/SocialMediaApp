@@ -17,7 +17,7 @@ export default function StoryScreen({navigation}: {navigation: any}) {
     <View style={styles.container}>
         <ImageBackground source={currentStory.image} style={styles.image}>
             <View style={styles.title}>
-                <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Main')}>
                     <AntDesign name="arrowleft" size={24} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Profile')}>
@@ -39,7 +39,8 @@ const styles = StyleSheet.create({
     title: {
         flexDirection: 'row',
         margin: 15,
-        alignItems: 'center'
+        alignItems: 'center',
+        top: 30,
     },
     image: {
         flex: 1,

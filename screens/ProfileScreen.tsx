@@ -1,13 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
 import { dummyPosts } from '../dummydata/DummyDatas';
-import { dummyUsers } from '../dummydata/DummyUsers';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
+import { toggleFollow, setUser } from '../redux/store/userSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen() {
-    const user = useSelector((state: RootState) => state.user)
+    const dispatch = useDispatch();
+    const user = useSelector((state: RootState) => state.user);
+    const [viewedUser, setViewedUser] = useState<string | null>(null);
+    const isCurrentUser = user.username === viewedUser; 
+    const isFollowing = viewedUser ? user.followingUsers.includes(viewedUser) : false;
+
+    useEffect(() => {
+        const fetchViewedUser = async () => {
+            const username = await AsyncStorage.getItem('loggedInUser'); // Görüntülenen kullanıcı
+            if (username) setViewedUser(username);
+        };
+        fetchViewedUser();
+    }, []);    
+
+    const handleFollowToggle = () => {
+        if (viewedUser) {
+            dispatch(toggleFollow(viewedUser));
+        }
+    };
 
     const renderPhoto = ({ item }: { item: any }) => (
         <Image source={item.image} style={styles.friendPhoto} />
@@ -40,13 +59,26 @@ export default function ProfileScreen() {
 
             {/* Profile Information */}
             <View style={styles.profileInfoContainer}>
-                <Text style={styles.username}>{user.username}</Text>
+                <Text style={styles.username}>{viewedUser}</Text>
 
                 {/* Buttons */}
                 <View style={styles.buttonsContainer}>
-                    <TouchableOpacity style={styles.editProfileButton}>
-                        <Text style={styles.buttonText}>Follow</Text>
-                    </TouchableOpacity>
+                {isCurrentUser ? (
+                        <>
+                            <TouchableOpacity style={styles.editProfileButton}>
+                                <Text style={styles.buttonText}>Edit Profile</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.editProfileButton}>
+                                <Text style={styles.buttonText}>Settings</Text>
+                            </TouchableOpacity>
+                        </>
+                    ) : (
+                        <TouchableOpacity style={styles.followButton} onPress={handleFollowToggle}>
+                            <Text style={styles.buttonText}>
+                                {isFollowing ? 'Unfollow' : 'Follow'}
+                            </Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
 
@@ -160,6 +192,13 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         paddingVertical: 10,
         paddingHorizontal: 30,
+    },
+    followButton: {
+        backgroundColor: '#1DA1F2',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        marginHorizontal: 5,
     },
     buttonText: {
         fontSize: 16,

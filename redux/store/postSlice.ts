@@ -7,7 +7,7 @@ interface Comment {
 
 interface Post {
     id: string;
-    username: string;
+    username: string | null;
     image: any;
     content: string;
     likes: number;
@@ -16,10 +16,12 @@ interface Post {
 }
 
 interface PostState {
+    posts: Post[];
     currentPost: Post | null;
 }
 
 const initialState: PostState = {
+    posts: [],
     currentPost: null,
 };
 
@@ -30,19 +32,27 @@ const postSlice = createSlice({
         setCurrentPost: (state, action: PayloadAction<Post>) => {
             state.currentPost = action.payload;
         },
+        addPost: (state, action: PayloadAction<Post>) => {
+            state.posts.unshift(action.payload); // Yeni gönderiyi başa ekler
+        },
         updatePostLikes: (state, action: PayloadAction<{ postId: string; likes: number; liked: boolean }>) => {
-            if (state.currentPost && state.currentPost.id === action.payload.postId) {
-                state.currentPost.likes = action.payload.likes;
-                state.currentPost.liked = action.payload.liked;
+            const postIndex = state.posts.findIndex(post => post.id === action.payload.postId);
+            if (postIndex !== -1) {
+                state.posts[postIndex].likes = action.payload.likes;
+                state.posts[postIndex].liked = action.payload.liked;
             }
         },
         updatePostComments: (state, action: PayloadAction<{ postId: string; comments: Comment[] }>) => {
-            if (state.currentPost && state.currentPost.id === action.payload.postId) {
-                state.currentPost.comments = action.payload.comments;
+            const post = state.posts.find(p => p.id === action.payload.postId);
+            if (post) {
+                post.comments = action.payload.comments;
             }
+        },
+        setPosts: (state, action: PayloadAction<Post[]>) => {
+            state.posts = action.payload; // Tüm gönderileri günceller
         },
     },
 });
 
-export const { setCurrentPost, updatePostLikes,updatePostComments } = postSlice.actions;
+export const { setCurrentPost, updatePostLikes,updatePostComments, addPost, setPosts } = postSlice.actions;
 export default postSlice.reducer;

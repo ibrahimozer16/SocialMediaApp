@@ -5,6 +5,7 @@ export const dummyUsers = [
         profileImage: require('../assets/ibrahim.png'),
         followers: 527,
         following: 527,
+        followingUsers: [],
     },
     {
         username: 'ozer',
@@ -12,6 +13,7 @@ export const dummyUsers = [
         profileImage: require('../assets/ozer.jpg'),
         followers: 527,
         following: 527,
+        followingUsers: [],
     },
     {
         username: 'john',
@@ -19,6 +21,7 @@ export const dummyUsers = [
         profileImage: require('../assets/john.jpg'),
         followers: 527,
         following: 527,
+        followingUsers: [],
     },
     {
         username: 'jane',
@@ -26,6 +29,7 @@ export const dummyUsers = [
         profileImage: require('../assets/jane.jpeg'),
         followers: 527,
         following: 527,
+        followingUsers: [],
     },
     {
         username: 'alice',
@@ -33,5 +37,6 @@ export const dummyUsers = [
         profileImage: require('../assets/alice.jpeg'),
         followers: 527,
         following: 527,
+        followingUsers: [],
     },
 ];
