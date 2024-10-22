@@ -1,52 +1,67 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface UserState {
+interface User {
+    id: string;
     username: string | null;
     profileImage: any | null;
-    followers: number;
-    following: number;
-    followingUsers: string[];
+    followers: string[];
+    following: string[];
+    about: string;
+}
+
+interface UserState {
+    currentUser: User | null;
+    users: User[];
 }
 
 const initialState: UserState = {
-    username: null,
-    profileImage: null,
-    followers: 527,
-    following: 527,
-    followingUsers: [],
+    currentUser: null,
+    users: [],
 };
 
 const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setUser: (state, action: PayloadAction<{ username: string, profileImage: any, followers: number, following: number, followingUsers: string[] }>) => {
-            state.username = action.payload.username;
-            state.profileImage = action.payload.profileImage;
-            state.followers = action.payload.followers;
-            state.following = action.payload.following;
-            state.followingUsers = action.payload.followingUsers;
+        setCurrentUser: (state, action: PayloadAction<User | null>) => {
+            state.currentUser = action.payload;
         },
-        toggleFollow: (state, action: PayloadAction<string>) => {
-            const username = action.payload;
-            const isFollowing = state.followingUsers.includes(username);
-            if (isFollowing) {
-                state.followingUsers = state.followingUsers.filter(user => user !== username);
-                state.following -= 1;
-            } else {
-                state.followingUsers.push(username);
-                state.following += 1;
+        updateCurrentUser: (state, action: PayloadAction<Partial<User>>) => {
+            if (state.currentUser) {
+                state.currentUser = {...state.currentUser, ...action.payload};
             }
         },
-        updateFollowers: (state, action: PayloadAction<boolean>) => {
-            if (action.payload) {
-                state.followers += 1;
-            } else {
-                state.followers -= 1;
+        setUsers: (state, action: PayloadAction<User[]>) => {
+            state.users = action.payload;
+        },
+        followUser: (state, action: PayloadAction<string>) => {
+            const targetUserId = action.payload;
+            const targetUser = state.users.find(user => user.id === targetUserId);
+
+            if (state.currentUser && targetUser && !state.currentUser.following.includes(targetUserId)) {
+                // Güncel kullanıcının following listesine ekleme
+                state.currentUser.following.push(targetUserId);
+                // Hedef kullanıcının followers listesine ekleme
+                targetUser.followers.push(state.currentUser.id);
+            }
+        },
+        unfollowUser: (state, action: PayloadAction<string>) => {
+            const targetUserId = action.payload;
+            const targetUser = state.users.find(user => user.id === targetUserId);
+
+            if (state.currentUser && targetUser) {
+                // Güncel kullanıcının following listesinden çıkarma
+                state.currentUser.following = state.currentUser.following.filter(
+                    (id) => id !== targetUserId
+                );
+                // Hedef kullanıcının followers listesinden çıkarma
+                targetUser.followers = targetUser.followers.filter(
+                    (id) => id !== state.currentUser?.id
+                );
             }
         },
     },
 });
 
-export const { setUser, toggleFollow, updateFollowers } = userSlice.actions;
+export const { setCurrentUser, updateCurrentUser, setUsers, followUser, unfollowUser } = userSlice.actions;
 export default userSlice.reducer;

@@ -11,11 +11,11 @@ export default function CreatePost({ navigation }: { navigation: any }) {
     const dispatch = useDispatch();
 
     const handlePost = () => {
-      if (user.username && content.trim()) {
+      if (user.currentUser?.username && content.trim()) {
         const newPost = {
             id: Date.now().toString(),
-            username: user.username,
-            image: user.profileImage,
+            username: user.currentUser.username,
+            image: user.currentUser.profileImage,
             content: content,
             likes: 0,
             liked: false,
@@ -38,8 +38,8 @@ export default function CreatePost({ navigation }: { navigation: any }) {
             </View>
 
             <View style={styles.userInfoContainer}>
-                <Image source={user.profileImage} style={styles.profileImage} />
-                <Text style={styles.username}>{user.username}</Text>
+                <Image source={user.currentUser?.profileImage} style={styles.profileImage} />
+                <Text style={styles.username}>{user.currentUser?.username}</Text>
             </View>
 
             <TextInput
@@ -52,7 +52,7 @@ export default function CreatePost({ navigation }: { navigation: any }) {
 
             <View style={styles.mediaContainer}>
                 <FlatList
-                    data={[user.profileImage]} // Örnek resimler
+                    data={[user.currentUser?.profileImage]} // Örnek resimler
                     renderItem={({ item }) => <Image source={item} style={styles.mediaImage} />}
                     keyExtractor={(item, index) => index.toString()}
                     horizontal

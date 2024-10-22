@@ -4,20 +4,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
 import { setCurrentStory, setStories } from '../redux/store/storySlice';
 import { setCurrentPost, updatePostComments, updatePostLikes, setPosts } from '../redux/store/postSlice';
-import { setUser } from '../redux/store/userSlice';
+import { setUsers, setCurrentUser } from '../redux/store/userSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { dummyStories, dummyPosts } from '../dummydata/DummyDatas';
 import { dummyUsers } from '../dummydata/DummyUsers';
 
-interface Post {
+export interface Post {
     id: string;
-    username: string;
+    username: string | null;
     image: any;
     content: string,
     likes: number;
-    liked: boolean,
+    liked?: boolean,
     comments: { id: string; text: string }[];
 }
 
@@ -26,6 +26,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
     const [modalVisible, setModalVisible] = useState(false);
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.user);
+    const currentUser = useSelector((state: RootState) => state.user.currentUser);
     const [commentModal, setCommentModal] = useState(false);
     const [newComment, setNewComment] = useState('');
     const currentPost = useSelector((state: RootState) => state.post.currentPost);
@@ -40,15 +41,10 @@ export default function HomeScreen({navigation}:{navigation:any}) {
             if (username) {
                 const loggedInUserData = dummyUsers.find(user => user.username === username);
                 if (loggedInUserData) {
-                    dispatch(setUser({
-                        username: loggedInUserData.username, 
-                        profileImage: loggedInUserData.profileImage,
-                        followers: loggedInUserData.followers,
-                        following: loggedInUserData.following,
-                        followingUsers: loggedInUserData.followingUsers || [],
-                    }));
+                    dispatch(setCurrentUser(loggedInUserData));
                 }
             }
+            dispatch(setUsers(dummyUsers));
             // Dummy story'leri Redux'a yükle
             dispatch(setStories(dummyStories));
             // Redux store'a dummy post'ları yükle
@@ -57,6 +53,14 @@ export default function HomeScreen({navigation}:{navigation:any}) {
     
         getLoggedInUser();
     }, [dispatch]);
+
+    const handleProfilePress = (user: any) => {
+        if(user.id === currentUser?.id) {
+            navigation.navigate('Profile');
+        } else {
+            navigation.navigate('UserProfile', { user });
+        }
+    }
 
     const handleAddComment = () => {
         if (currentPost && newComment.trim()) {
@@ -77,21 +81,21 @@ export default function HomeScreen({navigation}:{navigation:any}) {
     const handleLike = (postId: string) => {
         const postToUpdate = posts.find((post) => post.id === postId);
     
-    if (postToUpdate) {
-        const isLiked = postToUpdate.liked ?? false;
-        const updatedPost = {
-            ...postToUpdate,
-            liked: !isLiked,
-            likes: isLiked ? postToUpdate.likes - 1 : postToUpdate.likes + 1,
-        };
+        if (postToUpdate) {
+            const isLiked = postToUpdate.liked ?? false;
+            const updatedPost = {
+                ...postToUpdate,
+                liked: !isLiked,
+                likes: isLiked ? postToUpdate.likes - 1 : postToUpdate.likes + 1,
+            };
 
-        // Redux store'da post'u güncelle
-        dispatch(updatePostLikes({
-            postId: updatedPost.id,
-            likes: updatedPost.likes,
-            liked: updatedPost.liked,
-        }));
-    }
+            // Redux store'da post'u güncelle
+            dispatch(updatePostLikes({
+                postId: updatedPost.id,
+                likes: updatedPost.likes,
+                liked: updatedPost.liked,
+            }));
+        }
     };
 
     const renderStory = ({ item }:{item:any}) => (
@@ -113,7 +117,11 @@ export default function HomeScreen({navigation}:{navigation:any}) {
                 style={styles.postHeader} 
                 onPress={() => {
                     dispatch(setCurrentPost(item))
-                    navigation.navigate('Profile')
+                    handleProfilePress({
+                        id: item.id,
+                        username: item.username,
+                        profileImage: item.image,
+                    })
                 }}
             >
                 <Image source={item.image} style={styles.userImage}/>
@@ -164,7 +172,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
             </View>
 
             <View style={styles.create}>
-                {/* {user.profileImage ? <Image source={user.profileImage} style={styles.profileImage}/> : null} */}
+                {user.currentUser?.profileImage ? <Image source={user.currentUser.profileImage} style={styles.profileImage}/> : null}
                 <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
                     <Text style={styles.buttonText}>Whats on your mind?</Text>
                 </TouchableOpacity>
@@ -313,11 +321,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 30,
+        width: '80%'
     },
     buttonText: {
         width: 320,
         height: 40,
-        paddingLeft: 20,
+        paddingLeft: 30,
         textAlignVertical: 'center',
         color: '#3B3B3BFF',
     },

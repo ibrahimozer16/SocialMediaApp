@@ -15,6 +15,8 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import EditProfile from './screens/EditProfile';
 import Settings from './screens/Settings';
+import PostDetails from './screens/PostDetails';
+import UserProfileScreen from './screens/UserProfileScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -60,6 +62,8 @@ export default function App() {
           <Stack.Screen options={{headerShown: false}} name="Story" component={StoryScreen}/>
           <Stack.Screen options={{headerShown: false}} name="Edit" component={EditProfile}/>
           <Stack.Screen options={{headerShown: false}} name="Settings" component={Settings}/>
+          <Stack.Screen options={{headerShown: false}} name="PostDetails" component={PostDetails}/>
+          <Stack.Screen options={{headerShown: false}} name="UserProfile" component={UserProfileScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

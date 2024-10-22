@@ -4,10 +4,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { dummyUsers } from '../dummydata/DummyUsers';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { setCurrentUser } from '../redux/store/userSlice';
+import { useDispatch } from 'react-redux';
 
 export default function LoginScreen({navigation}:{navigation:any}) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const dispatch = useDispatch();
 
     const handleLogin = async () => {
         const foundUser = dummyUsers.find(
@@ -15,7 +18,8 @@ export default function LoginScreen({navigation}:{navigation:any}) {
         );
 
         if(foundUser){
-            await AsyncStorage.setItem('loggedInUser', username);
+            await AsyncStorage.setItem('loggedInUser', JSON.stringify(foundUser));
+            dispatch(setCurrentUser(foundUser));
             navigation.navigate('Main');
         }else{
             Alert.alert('Giriş Başarısız!', 'Kullanıcı Adı Veya Şifre Yanlış!');

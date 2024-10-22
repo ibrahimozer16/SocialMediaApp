@@ -18,11 +18,13 @@ interface Post {
 interface PostState {
     posts: Post[];
     currentPost: Post | null;
+    selectedPost: Post | null;
 }
 
 const initialState: PostState = {
     posts: [],
     currentPost: null,
+    selectedPost : null,
 };
 
 const postSlice = createSlice({
@@ -51,8 +53,11 @@ const postSlice = createSlice({
         setPosts: (state, action: PayloadAction<Post[]>) => {
             state.posts = action.payload; // Tüm gönderileri günceller
         },
+        setSelectedPost: (state, action: PayloadAction<Post>) => {
+            state.selectedPost = action.payload;
+        },
     },
 });
 
-export const { setCurrentPost, updatePostLikes,updatePostComments, addPost, setPosts } = postSlice.actions;
+export const { setCurrentPost, updatePostLikes,updatePostComments, addPost, setPosts, setSelectedPost } = postSlice.actions;
 export default postSlice.reducer;

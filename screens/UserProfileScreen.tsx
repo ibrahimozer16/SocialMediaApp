@@ -1,16 +1,43 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
 import { dummyPosts } from '../dummydata/DummyDatas';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
+import { followUser, unfollowUser } from '../redux/store/userSlice';
 
-export default function ProfileScreen({navigation}:{navigation: any}) {
-    const { currentUser } = useSelector((state: RootState) => state.user);
+export default function UserProfileScreen({route, navigation}:{route: any, navigation: any}) {
+    const dispatch = useDispatch();
+    const { currentUser, users } = useSelector((state: RootState) => state.user);
+    const user = users.find(u => u.id === route.params.user.id) || route.params.user;
+    const isFollowing = user && currentUser?.following.includes(user.id);
+
+    const handleFollowToggle = () => {
+        if (user) {
+            if (isFollowing) {
+                dispatch(unfollowUser(user.id));
+            } else {
+                dispatch(followUser(user.id));
+            }
+        }
+    };
+
+    useEffect(() => {
+        console.log('Received user:', user);
+    }, [user]);
 
     const renderPhoto = ({ item }: { item: any }) => (
         <Image source={item.image} style={styles.friendPhoto} />
     );
+
+    // Eğer kullanıcı bulunamazsa gösterilecek ekran
+    if (!user) {
+        return (
+            <View style={styles.loadingContainer}>
+                <Text style={{ fontSize: 18, color: 'red' }}>Kullanıcı bulunamadı</Text>
+            </View>
+        );
+    }
 
 
     return (
@@ -23,35 +50,37 @@ export default function ProfileScreen({navigation}:{navigation: any}) {
                 </View>
                 <View style={styles.statsContainer}>
                     <View style={styles.stat}>
-                        <Text style={styles.statNumber}>{currentUser?.followers.length || 0}</Text>
+                        <Text style={styles.statNumber}>{user?.followers?.length ?? 0}</Text>
                         <Text style={styles.statLabel}>Followers</Text>
                     </View>
                     <Image
-                        source={currentUser?.profileImage}
+                        source={user?.profileImage ?? null}
                         style={styles.profileImage}
                     />
                     <View style={styles.stat}>
-                        <Text style={styles.statNumber}>{currentUser?.following.length || 0}</Text>
+                        <Text style={styles.statNumber}>{user?.following?.length ?? 0}</Text>
                         <Text style={styles.statLabel}>Following</Text>
                     </View>
                 </View>
 
+                {/* Profile Information */}
                 <View style={styles.profileInfoContainer}>
-                    <Text style={styles.username}>{currentUser?.username}</Text>
+                    <Text style={styles.username}>{user?.username}</Text>
+                    {/* Buttons */}
                     <View style={styles.buttonsContainer}>
-                        <TouchableOpacity style={styles.editProfileButton} onPress={() => navigation.navigate('Edit')}>
-                            <Text style={styles.buttonText}>Edit Profile</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.editProfileButton} onPress={() => navigation.navigate('Settings')}>
-                            <Text style={styles.buttonText}>Settings</Text>
+                        <TouchableOpacity style={styles.followButton} onPress={handleFollowToggle}>
+                            <Text style={styles.buttonText}>
+                                {isFollowing ? 'Unfollow' : 'Follow'}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.aboutContainer}>
                         <Text style={styles.aboutTitle}>About</Text>
-                        <Text style={styles.about}>{currentUser?.about}</Text>
+                        <Text style={styles.about}>{user?.about ?? 'No informaiton avaliable'}</Text>
                     </View>
                 </View>
 
+                {/* Photos from Friends */}
                 <View style={styles.photosContainer}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Photos</Text>
@@ -68,6 +97,7 @@ export default function ProfileScreen({navigation}:{navigation: any}) {
                     />
                 </View>
 
+                {/* Video Section */}
                 <View style={styles.photosContainer}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Video</Text>
@@ -97,11 +127,7 @@ const styles = StyleSheet.create({
         width: '97%',
         alignSelf: 'center'
     },
-    loadingContainer: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     header: {
         height: 150,
         backgroundColor: '#f0f0f0',

@@ -40,7 +40,7 @@ export default function CreateStory() {
 
         const newStory: Story = {
             id: Date.now().toString(),
-            username: user.username || 'Guest',
+            username: user.currentUser?.username || 'Guest',
             image,
             title,
         };
