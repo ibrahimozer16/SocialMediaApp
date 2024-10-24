@@ -7,6 +7,7 @@ import { updatePostLikes, updatePostComments } from '../redux/store/postSlice';
 
 export default function PostDetails() {
     const selectedPost = useSelector((state: RootState) => state.post.selectedPost);
+    const users = useSelector((state: RootState) => state.user.users);
     const dispatch = useDispatch();
     const [post, setPost] = useState(selectedPost);
     const [newComment, setNewComment] = useState('');
@@ -18,10 +19,15 @@ export default function PostDetails() {
     if (!post) {
         return (
             <View style={styles.container}>
-                <Text style={styles.errorText}>Post not found.</Text>
+                <Text style={styles.errorText}>Post not found</Text>
             </View>
         );
     }
+
+    const getUserProfileImage = (username: string | null) => {
+        const user = users.find(u => u.username === username);
+        return user?.profileImage || require('../assets/ibrahim.png'); // Yer tutucu resim ekliyoruz
+    };
 
     const handleLike = () => {
         const isLiked = post.liked;
@@ -61,11 +67,18 @@ export default function PostDetails() {
     return (
         <View style={styles.container}>
             <View style={styles.postHeader}>
-                <Image source={post.image} style={styles.profileImage} />
+                <Image source={getUserProfileImage(post.username)} style={styles.profileImage} />
                 <Text style={styles.username}>{post.username}</Text>
             </View>
 
-            <Image source={post.image} style={styles.postImage} />
+            <Image 
+                source={
+                    typeof post.image === 'string' 
+                    ? { uri: post.image } 
+                    : post.image
+                } 
+                style={styles.postImage} 
+            />
             <Text style={styles.content}>{post.content}</Text>
 
             <View style={styles.stats}>

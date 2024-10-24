@@ -26,9 +26,12 @@ const storySlice = createSlice({
         },
         setStories: (state, action: PayloadAction<Story[]>) => {
             state.stories = action.payload;
+        },
+        addStory: (state, action: PayloadAction<Story>) => {
+            state.stories.unshift(action.payload);
         }
     },
 });
 
-export const { setCurrentStory, setStories } = storySlice.actions;
+export const { setCurrentStory, setStories, addStory } = storySlice.actions;
 export default storySlice.reducer;

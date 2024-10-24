@@ -1,28 +1,49 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity, FlatList, Button, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity, FlatList, Button, ScrollView, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { addPost } from '../redux/store/postSlice';
+import { addPost, setCurrentPost } from '../redux/store/postSlice';
 import { RootState } from '../redux/store';
 import { AntDesign } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function CreatePost({ navigation }: { navigation: any }) {
     const [content, setContent] = useState('');
+    const [image, setImage] = useState<string|null>(null)
     const user = useSelector((state: RootState) => state.user);
     const dispatch = useDispatch();
+
+    const pickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (permissionResult.granted === false) {
+            Alert.alert('Permission required', 'You need to grant camera roll permissions to select an image.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    };
 
     const handlePost = () => {
       if (user.currentUser?.username && content.trim()) {
         const newPost = {
             id: Date.now().toString(),
             username: user.currentUser.username,
-            image: user.currentUser.profileImage,
-            content: content,
+            image: image,
+            content,
             likes: 0,
             liked: false,
             comments: [],
         };
 
         dispatch(addPost(newPost)); // Redux store'a post eklenir
+        dispatch(setCurrentPost(newPost));
         navigation.goBack(); // Ana ekrana geri dön
     }
     };
@@ -50,14 +71,9 @@ export default function CreatePost({ navigation }: { navigation: any }) {
                 multiline
             />
 
-            <View style={styles.mediaContainer}>
-                <FlatList
-                    data={[user.currentUser?.profileImage]} // Örnek resimler
-                    renderItem={({ item }) => <Image source={item} style={styles.mediaImage} />}
-                    keyExtractor={(item, index) => index.toString()}
-                    horizontal
-                />
-            </View>
+            <TouchableOpacity style={styles.pickImageButton} onPress={pickImage}>
+                <Text style={styles.pickImageText}>Pick an image</Text>
+            </TouchableOpacity>
         </ScrollView>
     );
 }
@@ -99,6 +115,17 @@ const styles = StyleSheet.create({
         borderColor: '#ddd',
         borderRadius: 8,
         textAlignVertical: 'top',
+    },
+    pickImageButton: {
+        backgroundColor: '#1e90ff',
+        padding: 12,
+        margin: 16,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    pickImageText: {
+        color: 'white',
+        fontWeight: 'bold',
     },
     mediaContainer: {
         marginHorizontal: 16,

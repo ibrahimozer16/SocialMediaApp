@@ -54,13 +54,31 @@ export default function HomeScreen({navigation}:{navigation:any}) {
         getLoggedInUser();
     }, [dispatch]);
 
-    const handleProfilePress = (user: any) => {
-        if(user.id === currentUser?.id) {
+    useEffect(() => {
+        if (currentUser) {
+            const updatedPosts = posts.map(
+                post => post.username === currentUser.username
+                ? { ...post, username: currentUser.username }
+                : post
+            );
+            setUserPosts(updatedPosts);
+        }
+    }, [currentUser, posts])
+
+    const handleProfilePress = (user: { 
+        id: string; 
+        username: string; 
+        profileImage: any; 
+        followers: string[]; 
+        following: string[]; 
+        about: string;
+    }) => {
+        if (user.id === currentUser?.id) {
             navigation.navigate('Profile');
         } else {
             navigation.navigate('UserProfile', { user });
         }
-    }
+    };
 
     const handleAddComment = () => {
         if (currentPost && newComment.trim()) {
@@ -111,23 +129,34 @@ export default function HomeScreen({navigation}:{navigation:any}) {
         </TouchableOpacity>
     );
 
-    const renderPost = ({ item }:{item:any}) => (
-        <View style={styles.postContainer}>
+    const renderPost = ({ item }:{item:Post}) => {
+        const postUser = dummyUsers.find(user => user.username === item.username);
+        const imageSource = typeof item.image === 'string'
+            ? { uri: item.image } // Eğer URL ise uzaktaki kaynağı kullan
+            : item.image; // Yerel kaynağı direkt kullan
+        return (
+            <View style={styles.postContainer}>
             <TouchableOpacity 
                 style={styles.postHeader} 
                 onPress={() => {
                     dispatch(setCurrentPost(item))
-                    handleProfilePress({
-                        id: item.id,
-                        username: item.username,
-                        profileImage: item.image,
-                    })
+                    if (postUser) {
+                        handleProfilePress(postUser)
+                    }
                 }}
             >
-                <Image source={item.image} style={styles.userImage}/>
+                {postUser?.profileImage && (
+                    <Image 
+                        source={typeof postUser.profileImage === 'string' 
+                            ? { uri: postUser.profileImage } 
+                            : postUser.profileImage
+                        }
+                        style={styles.userImage} 
+                    />
+                )}
                 <Text style={styles.postUsername}>{item.username}</Text>
             </TouchableOpacity>
-            <Image source={item.image} style={styles.postImage} />
+            <Image source={imageSource} style={styles.postImage} />
             <Text style={styles.postContent}>{item.content}</Text>
             <View style={styles.postActions}>
                 <TouchableOpacity style={styles.actionButton} onPress={() => handleLike(item.id)}>
@@ -150,7 +179,13 @@ export default function HomeScreen({navigation}:{navigation:any}) {
                 </TouchableOpacity>
             </View>
         </View>
-    );
+        )
+        
+    };
+
+    useEffect(() => {
+        setUserPosts(posts); // Redux'tan postları al ve userPosts state'ine ata
+    }, [posts]);
 
     return (
         <ScrollView style={styles.container}>

@@ -9,7 +9,7 @@ export default function Settings({ navigation }: { navigation: any }) {
 
     const handleLogout = async () => {
         await AsyncStorage.removeItem('loggedInUser'); // Kullanıcı bilgisini AsyncStorage'dan kaldır
-        dispatch(setCurrentUser(null)); // Redux'ta kullanıcıyı null yap
+        //dispatch(setCurrentUser(null)); // Redux'ta kullanıcıyı null yap
         Alert.alert('Logged out', 'You have successfully logged out!');
         navigation.replace('Login'); // Giriş ekranına yönlendirme
     };

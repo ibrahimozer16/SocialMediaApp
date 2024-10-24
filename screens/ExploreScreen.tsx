@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, TextInput } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
 import { setPosts, setSelectedPost } from '../redux/store/postSlice';
@@ -10,39 +10,55 @@ export default function ExploreScreen({ navigation }: { navigation: any }) {
     const dispatch = useDispatch();
     const posts = useSelector((state: RootState) => state.post.posts);
     const currentUser = useSelector((state: RootState) => state.user.currentUser);
+    const users = useSelector((state: RootState) => state.user.users);
     const [friendsPosts, setFriendsPosts] = useState<Post[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredPosts, setFilteredPosts] = useState<Post[]>(posts);
 
     useEffect(() => {
-        dispatch(setPosts(dummyPosts)); // Postları Redux’a yükle
-        if(currentUser) {
-          const followedUsersPosts = posts.filter(
-            post => currentUser.following.includes(post.id ?? '')
-          )
+        if (currentUser && currentUser.following) {
+          const followedUsersPosts = posts.filter((post) => {
+            const postAuthor = users.find(user => user.username === post.username);
+            return postAuthor && currentUser.following.includes(postAuthor.id);
+          });
+          console.log('Friends Posts:', followedUsersPosts); // Debug için
           setFriendsPosts(followedUsersPosts);
         }
-    }, [dispatch, currentUser, posts]);
+    }, [currentUser, posts, users]);
+
+    useEffect(() => {
+        const filtered = posts.filter(
+          post => 
+            post.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            post.content.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        setFilteredPosts(filtered)
+    }, [searchQuery, posts])
 
     const handlePostSelect = (post: Post) => {
         dispatch(setSelectedPost(post)); // Seçili postu Redux’a kaydet
         navigation.navigate('PostDetails'); // Post detay ekranına yönlendir
     };
 
-    const renderPhoto = ({ item }: { item: Post }) => (
+    const renderPhoto = ({ item }: { item: Post }) => {
+      const imageSource = typeof item.image === 'string'
+        ? { uri: item.image } // Eğer URL ise uzaktaki kaynağı kullan
+        : item.image; // Yerel kaynağı direkt kullan
+      return (
         <TouchableOpacity onPress={() => handlePostSelect(item)} style={styles.photoContainer}>
-            <Image source={item.image} style={styles.photo} />
+            <Image source={imageSource} style={styles.photo} />
         </TouchableOpacity>
-    );
-
-    // const friendsPosts = posts.filter(
-    //   (post) => currentUser?.following.includes(post.username ?? '')
-    // );
-
-    // const publicPosts = posts.filter(
-    //   (post) => !currentUser?.following.includes(post.username ?? '')
-    // );
+      );
+    }
 
     return (
       <View style={styles.container}>
+        <TextInput 
+          style={styles.searchInput}
+          placeholder='Search by username or content'
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
         <View style={styles.group}>
         <Text style={styles.title}>Friends Posts</Text>
           {friendsPosts.length > 0 ? (
@@ -60,7 +76,7 @@ export default function ExploreScreen({ navigation }: { navigation: any }) {
         <View style={styles.group}>
           <Text style={styles.title}>Public Posts</Text>
           <FlatList
-              data={posts}
+              data={filteredPosts}
               renderItem={renderPhoto}
               keyExtractor={(item) => item.id}
               numColumns={2}
@@ -85,6 +101,15 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    searchInput: {
+        width: '100%',
+        height: 40,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 5,
+        paddingHorizontal: 10,
         marginBottom: 10,
     },
     photoContainer: {

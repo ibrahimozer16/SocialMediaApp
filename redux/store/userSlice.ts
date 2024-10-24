@@ -23,12 +23,11 @@ const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setCurrentUser: (state, action: PayloadAction<User | null>) => {
+        setCurrentUser: (state, action: PayloadAction<User>) => {
             state.currentUser = action.payload;
-        },
-        updateCurrentUser: (state, action: PayloadAction<Partial<User>>) => {
-            if (state.currentUser) {
-                state.currentUser = {...state.currentUser, ...action.payload};
+            const index = state.users.findIndex(user => user.id === action.payload?.id);
+            if (index !== -1) {
+                state.users[index] = action.payload;
             }
         },
         setUsers: (state, action: PayloadAction<User[]>) => {
@@ -63,5 +62,5 @@ const userSlice = createSlice({
     },
 });
 
-export const { setCurrentUser, updateCurrentUser, setUsers, followUser, unfollowUser } = userSlice.actions;
+export const { setCurrentUser, setUsers, followUser, unfollowUser } = userSlice.actions;
 export default userSlice.reducer;

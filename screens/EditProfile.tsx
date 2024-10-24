@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, FlatList, Image } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-import { setCurrentUser, updateCurrentUser } from '../redux/store/userSlice';
+import { setCurrentUser } from '../redux/store/userSlice';
 import * as ImagePicker from 'expo-image-picker';
 import { dummyPosts } from '../dummydata/DummyDatas';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function EditProfile({ navigation }: { navigation: any }) {
     const dispatch = useDispatch();
-    const { currentUser } = useSelector((state: RootState) => state.user);
+    const currentUser = useSelector((state: RootState) => state.user.currentUser);
 
     const [username, setUsername] = useState(currentUser?.username ?? '');
     const [about, setAbout] = useState(currentUser?.about ?? '');
@@ -26,16 +26,26 @@ export default function EditProfile({ navigation }: { navigation: any }) {
           Alert.alert('Error', 'User ID is missing!');
           return;
         }
-        
-        dispatch(updateCurrentUser({username, about, profileImage}));
 
-        AsyncStorage.setItem(
-          'loggedInUser',
-          JSON.stringify({username, about, profileImage})
-        );
+        const updatedUser = {
+            ...currentUser,
+            username,
+            about,
+            profileImage
+        };
+        dispatch(setCurrentUser(updatedUser));
+        
+        // dispatch(updateCurrentUser({username, about, profileImage}));
+
+        // AsyncStorage.setItem(
+        //   'loggedInUser',
+        //   JSON.stringify({username, about, profileImage})
+        // );
+
+
         // Redux'ta güncelleme işlemi
         // dispatch(setCurrentUser({ ...currentUser, username, about, profileImage }));
-        //Alert.alert('Success', 'Profile updated successfully!');
+        Alert.alert('Success', 'Profile updated successfully!');
         navigation.goBack();
     };
 
