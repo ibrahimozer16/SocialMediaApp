@@ -1,11 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { setCurrentUser } from '../redux/store/userSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Settings({ navigation }: { navigation: any }) {
-    const dispatch = useDispatch();
 
     const handleLogout = async () => {
         await AsyncStorage.removeItem('loggedInUser'); // Kullanıcı bilgisini AsyncStorage'dan kaldır
@@ -33,6 +30,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     title: {
+        marginTop: 30,
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,

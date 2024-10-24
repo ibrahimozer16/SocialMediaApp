@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { dummyPosts } from '../dummydata/DummyDatas';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useSelector } from 'react-redux';
@@ -14,7 +14,7 @@ export default function ProfileScreen({navigation}:{navigation: any}) {
 
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.container1}>
                 <View style={styles.buttons}>
                     <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -84,7 +84,7 @@ export default function ProfileScreen({navigation}:{navigation: any}) {
                     />
                 </View>
             </View>
-        </View>
+        </ScrollView>
     );
 }
 

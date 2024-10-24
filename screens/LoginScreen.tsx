@@ -1,4 +1,4 @@
-import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { dummyUsers } from '../dummydata/DummyUsers';
@@ -27,6 +27,14 @@ export default function LoginScreen({navigation}:{navigation:any}) {
     }
 
   return (
+    <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+        <ScrollView
+            contentContainerStyle={styles.scrollContainer} 
+            keyboardShouldPersistTaps="handled"
+        >
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.welcome}>Welcome to Social Media</Text>
@@ -64,70 +72,75 @@ export default function LoginScreen({navigation}:{navigation:any}) {
         </TouchableOpacity>
       </View>
     </View>
+        </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        backgroundColor: '#BACDD2FF'
+      flex: 1,
+      backgroundColor: '#BACDD2FF',
+    },
+    scrollContainer: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      padding: 16,
     },
     headerContainer: {
-        flex: 1.5, 
-        justifyContent: 'center',
-        top: 20,
-    },
-    loginContainer: {
-        flex: 4,
-        justifyContent: 'center',
-        alignSelf: 'center',
-        width: '90%',
-    },
-    socialContainer: {
-        flex: 1.5,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
+      alignItems: 'center',
+      marginBottom: 30,
+      marginTop: 70,
     },
     welcome: {
-        fontSize: 30,
-        textAlign: 'center',
+      fontSize: 30,
+      textAlign: 'center',
     },
-    input: {
-        backgroundColor: '#8EA3AEFF',
-        height: 60,
-        marginVertical: 10,
-        paddingHorizontal: 10,
+    loginContainer: {
+      marginBottom: 20,
+      width: '90%',
+      alignSelf: 'center',
     },
     text: {
-        fontSize: 16,
+      fontSize: 16,
+      marginBottom: 8,
     },
-    textSocial: {
-        fontSize: 14,
-        color: 'grey',
-        justifyContent: 'center',
-        alignSelf: 'center',
-        top: 30,
-    },
-    buttonSocial: {
-        backgroundColor: 'grey',
-        borderRadius: 35,
-        width: 70,
-        height: 70,
-        justifyContent: 'center',
-        alignItems: 'center',
-        bottom: 20
+    input: {
+      backgroundColor: '#8EA3AEFF',
+      height: 60,
+      marginVertical: 10,
+      paddingHorizontal: 10,
+      borderRadius: 8,
     },
     button: {
-        height: 50,
-        marginTop: 50,
-        justifyContent: 'center',
-        backgroundColor: 'darkblue',
+      height: 50,
+      marginTop: 20,
+      justifyContent: 'center',
+      backgroundColor: 'darkblue',
+      borderRadius: 8,
     },
     buttonText: {
-        textAlign: 'center',
-        fontSize: 16,
-        color: 'white',
+      textAlign: 'center',
+      fontSize: 16,
+      color: 'white',
     },
-})
+    textSocial: {
+      fontSize: 14,
+      color: 'grey',
+      textAlign: 'center',
+      marginVertical: 20,
+    },
+    socialContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-evenly',
+      marginTop: 10,
+    },
+    buttonSocial: {
+      backgroundColor: 'grey',
+      borderRadius: 35,
+      width: 70,
+      height: 70,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });

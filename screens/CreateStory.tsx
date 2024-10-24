@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Button, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-import { setCurrentStory } from '../redux/store/storySlice';
-import { useNavigation } from '@react-navigation/native';
+import { setCurrentStory, addStory } from '../redux/store/storySlice';
 import * as ImagePicker from 'expo-image-picker';
 
 interface Story {
@@ -13,12 +12,11 @@ interface Story {
     title: string;
 }
 
-export default function CreateStory() {
+export default function CreateStory({navigation}:{navigation:any}) {
     const [title, setTitle] = useState('');
     const [image, setImage] = useState<any>(null);
     const user = useSelector((state: RootState) => state.user);
     const dispatch = useDispatch();
-    const navigation = useNavigation();
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -44,7 +42,7 @@ export default function CreateStory() {
             image,
             title,
         };
-
+        dispatch(addStory(newStory));
         dispatch(setCurrentStory(newStory));
         navigation.goBack(); // Geri ana ekrana dön
     };

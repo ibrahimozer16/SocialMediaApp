@@ -55,7 +55,6 @@ export default function CreatePost({ navigation }: { navigation: any }) {
                     <AntDesign name="arrowleft" size={24} color="black" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Create post</Text>
-                <Button title="Post" onPress={handlePost} />
             </View>
 
             <View style={styles.userInfoContainer}>
@@ -71,9 +70,18 @@ export default function CreatePost({ navigation }: { navigation: any }) {
                 multiline
             />
 
-            <TouchableOpacity style={styles.pickImageButton} onPress={pickImage}>
-                <Text style={styles.pickImageText}>Pick an image</Text>
-            </TouchableOpacity>
+            <View style={styles.button}>
+                {image ? (
+                    <View>
+                        <Image source={{ uri: image }} style={styles.image} />
+                        <Button title="Post" onPress={handlePost} />
+                    </View>
+                ) : (
+                    <TouchableOpacity style={styles.pickImageButton} onPress={pickImage}>
+                        <Text style={styles.pickImageText}>Pick an image</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
         </ScrollView>
     );
 }
@@ -93,10 +101,18 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
     },
+    image: {
+        width: 200,
+        height: 200,
+        marginBottom: 20,
+    },
     userInfoContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
+    },
+    button: {
+        alignItems: 'center',
     },
     profileImage: {
         width: 50,
@@ -122,6 +138,7 @@ const styles = StyleSheet.create({
         margin: 16,
         borderRadius: 8,
         alignItems: 'center',
+        width: '70%',
     },
     pickImageText: {
         color: 'white',

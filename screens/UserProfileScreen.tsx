@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     container1: {
+        marginTop: 25,
         width: '97%',
         alignSelf: 'center'
     },

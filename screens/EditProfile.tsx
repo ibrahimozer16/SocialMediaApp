@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, FlatList, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, FlatList, Image, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
 import { setCurrentUser } from '../redux/store/userSlice';
@@ -35,16 +35,6 @@ export default function EditProfile({ navigation }: { navigation: any }) {
         };
         dispatch(setCurrentUser(updatedUser));
         
-        // dispatch(updateCurrentUser({username, about, profileImage}));
-
-        // AsyncStorage.setItem(
-        //   'loggedInUser',
-        //   JSON.stringify({username, about, profileImage})
-        // );
-
-
-        // Redux'ta güncelleme işlemi
-        // dispatch(setCurrentUser({ ...currentUser, username, about, profileImage }));
         Alert.alert('Success', 'Profile updated successfully!');
         navigation.goBack();
     };
@@ -67,7 +57,7 @@ export default function EditProfile({ navigation }: { navigation: any }) {
     );
 
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
           <View style={styles.container1}>
               <View style={styles.buttons}>
                   <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -138,17 +128,17 @@ export default function EditProfile({ navigation }: { navigation: any }) {
                       showsHorizontalScrollIndicator={false}
                   />
               </View>
-              <View>
+              <View style={styles.button}>
                 <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
                     <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
+                <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.navigate('Profile')}>
                     <Text style={styles.buttonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
           </View>
-      </View>
+      </ScrollView>
     );
 }
 
@@ -281,18 +271,25 @@ const styles = StyleSheet.create({
         backgroundColor: '#1DA1F2',
         paddingVertical: 10,
         paddingHorizontal: 20,
-        borderRadius: 20,
+        borderRadius: 15,
         marginTop: 20,
+        width: '25%',
     },
     cancelButton: {
         backgroundColor: '#FF6347',
         paddingVertical: 10,
         paddingHorizontal: 20,
-        borderRadius: 20,
-        marginTop: 10,
+        borderRadius: 15,
+        marginTop: 20,
+        width: '25%',
     },
     buttonText: {
         color: 'white',
         fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    button: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
     },
 });

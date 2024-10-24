@@ -1,10 +1,10 @@
 // Story verileri
 export const dummyStories = [
-    { id: '1', name: 'ibrahim', image: require('../assets/ibrahim.png') },
-    { id: '2', name: 'ozer', image: require('../assets/ozer.jpg') },
-    { id: '3', name: 'john', image: require('../assets/john.jpg') },
-    { id: '4', name: 'jane', image: require('../assets/jane.jpeg') },
-    { id: '5', name: 'alice', image: require('../assets/alice.jpeg') },
+    { id: '1', username: 'ibrahim', image: require('../assets/ibrahim.png') },
+    { id: '2', username: 'ozer', image: require('../assets/ozer.jpg') },
+    { id: '3', username: 'john', image: require('../assets/john.jpg') },
+    { id: '4', username: 'jane', image: require('../assets/jane.jpeg') },
+    { id: '5', username: 'alice', image: require('../assets/alice.jpeg') },
 ];
 
 // Post verileri

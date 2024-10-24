@@ -21,6 +21,12 @@ export interface Post {
     comments: { id: string; text: string }[];
 }
 
+interface Story {
+    id: string;
+    image: string;
+    username?: string;
+}
+
 export default function HomeScreen({navigation}:{navigation:any}) {
     const [userPosts, setUserPosts] = useState<Post[]>([]);
     const [modalVisible, setModalVisible] = useState(false);
@@ -116,7 +122,11 @@ export default function HomeScreen({navigation}:{navigation:any}) {
         }
     };
 
-    const renderStory = ({ item }:{item:any}) => (
+    const renderStory = ({ item }:{item:Story}) => {
+        const imageSource = typeof item.image === 'string'
+            ? { uri: item.image } // Eğer URL ise uzaktaki kaynağı kullan
+            : item.image; // Yerel kaynağı direkt kullan
+        return (
         <TouchableOpacity 
             style={styles.storyContainer} 
             onPress={() => {
@@ -124,10 +134,11 @@ export default function HomeScreen({navigation}:{navigation:any}) {
                 navigation.navigate('Story')
             }}
         >
-            <Image source={item.image} style={styles.storyImage} />
-            <Text style={styles.storyName}>{item.name}</Text>
+            <Image source={imageSource} style={styles.storyImage} />
+            <Text style={styles.storyName}>{item.username}</Text>
         </TouchableOpacity>
-    );
+        );
+    }
 
     const renderPost = ({ item }:{item:Post}) => {
         const postUser = dummyUsers.find(user => user.username === item.username);
